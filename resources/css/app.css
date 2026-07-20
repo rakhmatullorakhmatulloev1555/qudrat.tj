@@ -1,0 +1,315 @@
+@import 'tailwindcss';
+/* Шрифты (Inter + Cormorant Garamond) уже подключены через <link> в app.blade.php —
+   дублирующий @import убран, чтобы не грузить шрифт дважды и убрать CSS-warning. */
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.vue';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+
+    /* ── Brand gold — полная тональная шкала ── */
+    --color-gold-50:  #F7F1E6;
+    --color-gold-100: #EEE2CB;
+    --color-gold-200: #DFC79C;
+    --color-gold-300: #D3B683;
+    --color-gold:     #C9A96E;   /* brand primary */
+    --color-gold-600: #B8935A;   /* hover / pressed */
+    --color-gold-700: #96763F;
+    --color-gold-800: #6E5730;
+
+    /* ── Surfaces (dark theme) ── */
+    --color-dark:      #070B16;
+    --color-surface:   #0C1220;
+    --color-elevated:  #0F1828;
+}
+
+/*
+ * ═══ DESIGN TOKENS ═══
+ * Единый источник правды для цвета, границ, теней и скруглений.
+ * Использовать var(--*) вместо захардкоженных значений — палитра
+ * тюнится в одном месте и остаётся консистентной на всех страницах.
+ */
+:root {
+    /* Backgrounds — 3 уровня глубины */
+    --bg-base:     #070B16;   /* фон страницы, самые тёмные секции */
+    --bg-surface:  #0C1220;   /* карточки, панели, боковые секции */
+    --bg-elevated: #0F1828;   /* оверлеи, модалки, шапка */
+
+    /* Brand */
+    --gold:        #C9A96E;
+    --gold-hover:  #B8935A;
+    --gold-soft:   rgba(201, 169, 110, 0.12);
+    --gold-line:   rgba(201, 169, 110, 0.22);
+
+    /* Text — иерархия по контрасту (проходят WCAG AA на тёмном фоне) */
+    --text-primary:   rgba(255, 255, 255, 0.96);
+    --text-secondary: rgba(255, 255, 255, 0.72);
+    --text-muted:     rgba(255, 255, 255, 0.56);
+    --text-faint:     rgba(255, 255, 255, 0.42);
+
+    /* Lines / borders */
+    --line:        rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.14);
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius:    10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* Elevation */
+    --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.30);
+    --shadow:      0 8px 30px rgba(0, 0, 0, 0.40);
+    --shadow-lg:   0 20px 60px rgba(0, 0, 0, 0.50);
+    --shadow-gold: 0 0 0 4px var(--gold-soft);
+
+    /* Motion — единый язык анимаций */
+    --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-fast:    180ms;
+    --dur:         300ms;
+    --dur-slow:    500ms;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+    body {
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        max-width: 100%;
+        /* Резкость шрифта на тёмном фоне — критично для премиум-восприятия */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    /* ── Premium heading font — все заголовки сайта ── */
+    h1, h2, h3 {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        /* Красивый перенос заголовков без «сирот» на последней строке */
+        text-wrap: balance;
+    }
+
+    /* Абзацы — избегаем висячих одиночных слов */
+    p { text-wrap: pretty; }
+
+    /* Числа в статистике/ценах — моноширинные цифры для ровных колонок */
+    .tabular-nums,
+    .stat-number { font-variant-numeric: tabular-nums; }
+
+    /* ── Выделение текста в фирменном золоте ── */
+    ::selection {
+        background: rgba(201, 169, 110, 0.28);
+        color: #FFFFFF;
+    }
+
+    /* ── WCAG 2.2 AA: Focus-visible states ── */
+    /* Убираем дефолтный outline только там где есть кастомный :focus-visible */
+    :focus { outline: none; }
+
+    :focus-visible {
+        outline: 2px solid rgba(201,169,110,0.8);
+        outline-offset: 3px;
+        border-radius: 4px;
+    }
+
+    /* Для кнопок и ссылок — более заметный ring */
+    a:focus-visible,
+    button:focus-visible {
+        outline: 2px solid rgba(201,169,110,0.9);
+        outline-offset: 4px;
+        border-radius: 6px;
+        box-shadow: 0 0 0 4px rgba(201,169,110,0.12);
+    }
+
+    /* Для полей ввода — gold border */
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+        outline: none;
+        border-color: rgba(201,169,110,0.6) !important;
+        box-shadow: 0 0 0 3px rgba(201,169,110,0.12);
+    }
+
+    /* Skip-link — уже есть в MainLayout, делаем его заметным */
+    .sr-only:focus {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 9999;
+        padding: 0.5rem 1rem;
+        background: #C9A96E;
+        color: #070B16;
+        font-weight: 700;
+        border-radius: 6px;
+        clip: auto;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        white-space: nowrap;
+    }
+
+    /* ── Thin gold-tinted scrollbar (Chrome / Edge) ── */
+    ::-webkit-scrollbar          { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track    { background: #070B16; }
+    ::-webkit-scrollbar-thumb    { background: rgba(201,169,110,0.28); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,0.50); }
+
+    /* Firefox */
+    * { scrollbar-width: thin; scrollbar-color: rgba(201,169,110,0.28) #070B16; }
+}
+
+/* ═══ ADMIN COMPONENT UTILITIES ═══ */
+@layer components {
+
+    /* Cards */
+    .card {
+        @apply bg-[#1E293B] rounded-xl p-5 border border-white/5;
+    }
+
+    /* Inputs */
+    .input {
+        @apply bg-[#0F172A] border border-white/10 rounded-lg px-3 py-2
+               text-white text-sm placeholder-gray-600
+               focus:outline-none focus:ring-1 focus:ring-[#C9A96E]/50 focus:border-[#C9A96E]/50
+               transition-colors;
+    }
+
+    /* Focus ring — используется в публичных формах вместо outline:none */
+    .focus-ring:focus-visible {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(201,169,110,0.5), 0 0 0 4px rgba(201,169,110,0.08) !important;
+    }
+
+    /* Labels */
+    .label {
+        @apply block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider;
+    }
+
+    /* Error text */
+    .error {
+        @apply text-red-400 text-xs mt-1;
+    }
+
+    /* Table cells */
+    .th {
+        @apply text-left text-[10px] font-bold uppercase tracking-widest text-gray-500 px-4 py-3;
+    }
+    .td {
+        @apply px-4 py-3 text-sm;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        @apply bg-[#C9A96E] hover:bg-[#B8935A] text-[#070B16] font-bold text-sm
+               px-4 py-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    .btn-secondary {
+        @apply bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white font-semibold text-sm
+               px-4 py-2.5 rounded-lg transition-all duration-200 border border-white/10;
+    }
+    .btn-danger {
+        @apply bg-red-500/15 hover:bg-red-500/25 text-red-400 hover:text-red-300 font-semibold text-sm
+               px-4 py-2.5 rounded-lg transition-all duration-200 border border-red-500/20;
+    }
+    .icon-btn {
+        @apply w-8 h-8 rounded-lg flex items-center justify-center text-gray-400
+               hover:text-white hover:bg-white/10 transition-all duration-200;
+    }
+
+    /* Badges */
+    .badge {
+        @apply inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold;
+    }
+    .badge-green  { @apply bg-green-500/15 text-green-400; }
+    .badge-red    { @apply bg-red-500/15 text-red-400; }
+    .badge-blue   { @apply bg-blue-500/15 text-blue-400; }
+    .badge-yellow { @apply bg-yellow-500/15 text-yellow-400; }
+    .badge-purple { @apply bg-purple-500/15 text-purple-400; }
+    .badge-gray   { @apply bg-white/10 text-gray-400; }
+    .badge-gold   { @apply bg-[#C9A96E]/15 text-[#C9A96E]; }
+
+    /* Modal */
+    .modal-overlay {
+        @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(4px);
+    }
+    .modal-box {
+        @apply bg-[#1E293B] border border-white/10 rounded-2xl p-6 w-full max-w-lg
+               shadow-[0_20px_60px_rgba(0,0,0,0.5)];
+    }
+
+    /* Toggle switch */
+    .toggle { @apply relative inline-flex cursor-pointer; }
+    .toggle input { @apply sr-only; }
+    .toggle-track {
+        @apply block w-10 h-6 rounded-full transition-colors duration-200;
+        background: #334155;
+    }
+    .toggle input:checked + .toggle-track {
+        background: #C9A96E;
+    }
+    .toggle-track::after {
+        content: '';
+        @apply absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-200;
+    }
+    .toggle input:checked + .toggle-track::after {
+        @apply translate-x-4;
+    }
+}
+
+/* ═══ PREMIUM UTILITIES (публичный сайт) ═══ */
+@layer components {
+
+    /* Золотая градиентная заливка текста — для акцентных слов в заголовках */
+    .text-gold-gradient {
+        background: linear-gradient(135deg, var(--color-gold-200), var(--color-gold), var(--color-gold-600));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* Тонкая золотая hairline-рамка (карточки, панели) */
+    .hairline { border: 1px solid var(--line); }
+    .hairline-gold { border: 1px solid var(--gold-line); }
+
+    /* Premium-кнопка с фирменным лифтом при наведении */
+    .btn-gold {
+        @apply inline-flex items-center justify-center gap-2 font-bold uppercase
+               tracking-widest text-[#070B16] rounded;
+        background: var(--gold);
+        transition: background var(--dur-fast) var(--ease-out),
+                    transform var(--dur-fast) var(--ease-out),
+                    box-shadow var(--dur) var(--ease-out);
+    }
+    .btn-gold:hover {
+        background: var(--gold-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(201, 169, 110, 0.22);
+    }
+    .btn-gold:active { transform: translateY(0); }
+}
+
+/* ═══ GLOBAL MOTION SAFETY ═══
+ * Уважаем системную настройку «уменьшить движение» на всём сайте,
+ * а не только в отдельных компонентах. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
