@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Закрыть admin-панель от индексации
+Disallow: /admin/
+Disallow: /admin/login
+Disallow: /lang/
+
+# Sitemap
+Sitemap: https://qudrat.tj/sitemap.xml
